@@ -4,7 +4,7 @@ import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 
 //const API_URL = "http://localhost:5000/todos";
-const API_URL="https://todo-backend-olfc.onrender.com/todos";
+const API_URL="process.env.REACT_APP_API_URL";
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
