@@ -1,0 +1,134 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f4f4f4;
+  padding: 40px;
+}
+
+/* Title */
+h1 {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Input section */
+.todo-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.todo-container input {
+  padding: 8px 10px;
+  width: 250px;
+  font-size: 15px;
+}
+
+.todo-container button {
+  padding: 8px 14px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Todo list item */
+li.todo-item {
+  list-style: none;
+  background: white;
+  margin: 10px auto;
+  padding: 12px 15px;
+  width: 400px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 4px;
+}
+
+/* Left section: checkbox + text */
+.todo-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+/* Todo text */
+.todo-left span {
+  font-size: 16px;
+  word-break: break-word;
+}
+
+/* Completed todo */
+.completed {
+  text-decoration: line-through;
+  color: gray;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+/* Delete button */
+.delete-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+/* Hover effect */
+li.todo-item:hover {
+  background: #f9f9f9;
+}
+
+
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.filters button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+.edit-input {
+  flex: 1;
+  padding: 6px;
+  font-size: 15px;
+}
+
+
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+
+/* Logout section */
+.logout-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.logout-btn {
+  padding: 10px 22px;
+  font-size: 15px;
+  font-weight: 500;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background-color: #dc2626;
+}
