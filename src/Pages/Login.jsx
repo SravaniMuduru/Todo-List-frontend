@@ -6,7 +6,6 @@ export default function Login({ setToken, setShowSignup }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use env variable
   const API_BASE = import.meta.env.VITE_API_URL;
 
   async function handleLogin(e) {
@@ -22,9 +21,7 @@ export default function Login({ setToken, setShowSignup }) {
 
       const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -32,11 +29,14 @@ export default function Login({ setToken, setShowSignup }) {
 
       if (!res.ok) {
         alert(data.error || "Invalid credentials");
-        setLoading(false);
         return;
       }
 
-      // ✅ Save token
+      if (!data.token) {
+        alert("Login succeeded but token is missing!");
+        return;
+      }
+
       localStorage.setItem("token", data.token);
       setToken(data.token);
 
@@ -53,27 +53,21 @@ export default function Login({ setToken, setShowSignup }) {
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleLogin}>
         <h2>Login</h2>
-
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          autoComplete="email"
         />
-
         <input
           type="password"
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          autoComplete="current-password"
         />
-
         <button type="submit" disabled={loading}>
           {loading ? "Logging in..." : "Login"}
         </button>
-
         <p>
           Don&apos;t have an account?{" "}
           <span
