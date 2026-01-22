@@ -1,92 +1,54 @@
-// import { useState } from "react";
-// import "./auth.css";
-
-// export default function Login({ setToken, setShowSignup }) {
-//   const [email, setEmail] = useState("");
-//   const [password, setPassword] = useState("");
-
-//   async function handleLogin() {
-//     try {
-//       const res = await fetch("http://localhost:5000/auth/login", {
-//         method: "POST",
-//         headers: { "Content-Type": "application/json" },
-//         body: JSON.stringify({ email, password })
-//       });
-
-//       if (!res.ok) return alert("Invalid credentials");
-
-//       const data = await res.json();
-//       setToken(data.token);
-//       localStorage.setItem("token", data.token);
-//     } catch (err) {
-//       console.error(err);
-//     }
-//   }
-
-//   return (
-//     <div className="auth-container">
-//       <div className="auth-card"> {/* <-- Wrap in auth-card for proper styling */}
-//         <h2>Login</h2>
-//         <input
-//           type="email"
-//           placeholder="Email"
-//           value={email}
-//           onChange={(e) => setEmail(e.target.value)}
-//         />
-//         <input
-//           type="password"
-//           placeholder="Password"
-//           value={password}
-//           onChange={(e) => setPassword(e.target.value)}
-//         />
-//         <button onClick={handleLogin}>Login</button>
-//         <p>
-//           Don't have an account?{" "}
-//           <span onClick={() => setShowSignup(true)}>Sign up</span>
-//         </p>
-//       </div>
-//     </div>
-//   );
-// }
-
-
 import { useState } from "react";
 import "./auth.css";
 
 export default function Login({ setToken, setShowSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleLogin() {
+  async function handleLogin(e) {
+    e.preventDefault();
+
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+
     try {
+      setLoading(true);
+
       const res = await fetch("http://localhost:5000/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        alert("Invalid credentials");
+        alert(data.error || "Invalid credentials");
+        setLoading(false);
         return;
       }
 
-      const data = await res.json();
-
-      // ✅ LOGIN SUCCESS POPUP
-      alert("Login successful!");
-
-      setToken(data.token);
+      // ✅ Save token
       localStorage.setItem("token", data.token);
+      setToken(data.token);
 
+      alert("Login successful 🎉");
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert("Server error. Try again later.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <form className="auth-card" onSubmit={handleLogin}>
         <h2>Login</h2>
 
         <input
@@ -94,6 +56,7 @@ export default function Login({ setToken, setShowSignup }) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
         />
 
         <input
@@ -101,21 +64,23 @@ export default function Login({ setToken, setShowSignup }) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="current-password"
         />
 
-        <button onClick={handleLogin}>Login</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Logging in..." : "Login"}
+        </button>
 
         <p>
-          Don't have an account?{" "}
+          Don&apos;t have an account?{" "}
           <span
             onClick={() => setShowSignup(true)}
-            style={{ cursor: "pointer", color: "blue" }}
+            style={{ cursor: "pointer", color: "#2563eb" }}
           >
             Sign up
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 }
-

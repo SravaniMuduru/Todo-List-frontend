@@ -4,12 +4,29 @@ import "./auth.css";
 export default function Signup({ setShowSignup }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  async function handleSignup() {
+  async function handleSignup(e) {
+    e.preventDefault();
+
+    if (!email || !password) {
+      alert("Please fill all fields");
+      return;
+    }
+
+    if (password.length < 6) {
+      alert("Password must be at least 6 characters");
+      return;
+    }
+
     try {
+      setLoading(true);
+
       const res = await fetch("http://localhost:5000/auth/signup", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ email, password }),
       });
 
@@ -20,25 +37,26 @@ export default function Signup({ setShowSignup }) {
         return;
       }
 
-      // ✅ SUCCESS POPUP
-      alert("Signup successful! Please login.");
+      // ✅ SUCCESS
+      alert("Signup successful 🎉 Please login");
 
-      // ✅ clear fields
+      // clear form
       setEmail("");
       setPassword("");
 
-      // ✅ move to login screen
+      // switch to login
       setShowSignup(false);
-
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert("Server error. Try again later.");
+    } finally {
+      setLoading(false);
     }
   }
 
   return (
     <div className="auth-container">
-      <div className="auth-card">
+      <form className="auth-card" onSubmit={handleSignup}>
         <h2>Sign Up</h2>
 
         <input
@@ -46,6 +64,7 @@ export default function Signup({ setShowSignup }) {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          autoComplete="email"
         />
 
         <input
@@ -53,20 +72,23 @@ export default function Signup({ setShowSignup }) {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          autoComplete="new-password"
         />
 
-        <button onClick={handleSignup}>Sign Up</button>
+        <button type="submit" disabled={loading}>
+          {loading ? "Creating account..." : "Sign Up"}
+        </button>
 
         <p>
           Already have an account?{" "}
           <span
             onClick={() => setShowSignup(false)}
-            style={{ cursor: "pointer", color: "blue" }}
+            style={{ cursor: "pointer", color: "#2563eb" }}
           >
             Login
           </span>
         </p>
-      </div>
+      </form>
     </div>
   );
 }
