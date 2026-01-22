@@ -6,7 +6,9 @@ export default function Signup({ setShowSignup, setToken }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Make sure this environment variable is correct in Netlify/Vite
   const API_BASE = import.meta.env.VITE_API_URL;
+  console.log("API_BASE:", API_BASE); // Debug: must print your backend URL
 
   async function handleSignup(e) {
     e.preventDefault();
@@ -37,17 +39,19 @@ export default function Signup({ setShowSignup, setToken }) {
         return;
       }
 
-      // ✅ Auto-login after signup
+      console.log("Signup returned token:", data.token); // Debug: must be a JWT
+
+      // ✅ Save token to localStorage and React state
       localStorage.setItem("token", data.token);
       setToken(data.token);
 
       alert("Signup successful 🎉 You are now logged in!");
 
-      // clear form
+      // Clear form
       setEmail("");
       setPassword("");
     } catch (err) {
-      console.error(err);
+      console.error("Signup error:", err);
       alert("Server error. Try again later.");
     } finally {
       setLoading(false);
