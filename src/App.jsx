@@ -3,8 +3,8 @@ import "./index.css";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 
+const API_URL = import.meta.env.VITE_API_URL + "/todos";
 
-const API_URL = import.meta.env.VITE_API_URL;
 export default function App() {
   const [todos, setTodos] = useState([]);
   const [text, setText] = useState("");
