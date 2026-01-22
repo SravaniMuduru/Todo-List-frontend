@@ -6,6 +6,9 @@ export default function Signup({ setShowSignup }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Use env variable
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   async function handleSignup(e) {
     e.preventDefault();
 
@@ -22,7 +25,7 @@ export default function Signup({ setShowSignup }) {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/auth/signup", {
+      const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

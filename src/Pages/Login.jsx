@@ -6,6 +6,9 @@ export default function Login({ setToken, setShowSignup }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // ✅ Use env variable
+  const API_BASE = import.meta.env.VITE_API_URL;
+
   async function handleLogin(e) {
     e.preventDefault();
 
@@ -17,7 +20,7 @@ export default function Login({ setToken, setShowSignup }) {
     try {
       setLoading(true);
 
-      const res = await fetch("http://localhost:5000/auth/login", {
+      const res = await fetch(`${API_BASE}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
