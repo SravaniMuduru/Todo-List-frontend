@@ -3,7 +3,8 @@ import "./index.css";
 import Login from "./Pages/Login";
 import Signup from "./Pages/Signup";
 
-const API_URL = import.meta.env.VITE_API_URL + "/todos";
+const API_BASE = import.meta.env.VITE_API_URL;
+const TODOS_URL = `${API_BASE}/todos`;
 
 export default function App() {
   const [todos, setTodos] = useState([]);
@@ -15,14 +16,18 @@ export default function App() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [showSignup, setShowSignup] = useState(false);
 
-  // 🚪 Logout
+  /* =======================
+     LOGOUT
+  ======================= */
   function logout() {
     localStorage.removeItem("token");
     setToken(null);
     setTodos([]);
   }
 
-  // 📥 Load todos
+  /* =======================
+     LOAD TODOS
+  ======================= */
   useEffect(() => {
     if (!token) return;
 
@@ -30,19 +35,27 @@ export default function App() {
 
     async function loadTodos() {
       try {
-        const res = await fetch(API_URL, {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(TODOS_URL, {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
         });
 
-        if (!res.ok) {
+        // 🔐 Only logout on auth error
+        if (res.status === 401) {
           logout();
           return;
         }
 
         let data = await res.json();
 
-        if (currentFilter === "active") data = data.filter(t => !t.completed);
-        else if (currentFilter === "completed") data = data.filter(t => t.completed);
+        // Apply filters
+        if (currentFilter === "active") {
+          data = data.filter((t) => !t.completed);
+        } else if (currentFilter === "completed") {
+          data = data.filter((t) => t.completed);
+        }
 
         if (isMounted) setTodos(data);
       } catch (err) {
@@ -51,14 +64,18 @@ export default function App() {
     }
 
     loadTodos();
-    return () => { isMounted = false; };
+    return () => {
+      isMounted = false;
+    };
   }, [token, currentFilter]);
 
-  // ➕ Add todo
+  /* =======================
+     ADD TODO
+  ======================= */
   async function addTodo() {
     if (!text.trim()) return;
 
-    const res = await fetch(API_URL, {
+    const res = await fetch(TODOS_URL, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -67,44 +84,74 @@ export default function App() {
       body: JSON.stringify({ text }),
     });
 
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+
     if (res.ok) {
       const newTodo = await res.json();
-      setTodos(prev => [newTodo, ...prev]);
+      setTodos((prev) => [newTodo, ...prev]);
       setText("");
       setCurrentFilter("all");
     }
   }
 
-  // ❌ Delete todo
+  /* =======================
+     DELETE TODO
+  ======================= */
   async function deleteTodo(id) {
-    const res = await fetch(`${API_URL}/${id}`, {
+    const res = await fetch(`${TODOS_URL}/${id}`, {
       method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
-    if (res.ok) setCurrentFilter("all");
+
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+
+    if (res.ok) {
+      setTodos((prev) => prev.filter((t) => t._id !== id));
+    }
   }
 
-  // ✔ Toggle completed
+  /* =======================
+     TOGGLE TODO
+  ======================= */
   async function toggleTodo(id) {
-    const res = await fetch(`${API_URL}/${id}`, {
+    const res = await fetch(`${TODOS_URL}/${id}`, {
       method: "PUT",
-      headers: { Authorization: `Bearer ${token}` },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
-    if (!res.ok) return;
+    if (res.status === 401) {
+      logout();
+      return;
+    }
 
-    setTodos(prev =>
-      prev.map(todo =>
-        todo._id === id ? { ...todo, completed: !todo.completed } : todo
-      )
-    );
+    if (res.ok) {
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo._id === id
+            ? { ...todo, completed: !todo.completed }
+            : todo
+        )
+      );
+    }
   }
 
-  // ✏ Save edit
+  /* =======================
+     SAVE EDIT
+  ======================= */
   async function saveEdit(id) {
     if (!editText.trim()) return;
 
-    const res = await fetch(`${API_URL}/${id}/edit`, {
+    const res = await fetch(`${TODOS_URL}/${id}/edit`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -113,13 +160,19 @@ export default function App() {
       body: JSON.stringify({ text: editText }),
     });
 
+    if (res.status === 401) {
+      logout();
+      return;
+    }
+
     if (res.ok) {
       setEditingTodoId(null);
-      setCurrentFilter(prev => prev);
     }
   }
 
-  // 🔐 Auth screens
+  /* =======================
+     AUTH SCREENS
+  ======================= */
   if (!token) {
     return showSignup ? (
       <Signup setShowSignup={setShowSignup} setToken={setToken} />
@@ -128,7 +181,9 @@ export default function App() {
     );
   }
 
-  // ✅ Main UI
+  /* =======================
+     MAIN UI
+  ======================= */
   return (
     <div className="container">
       <h1>Todo App</h1>
@@ -145,7 +200,9 @@ export default function App() {
       <div className="filters">
         <button onClick={() => setCurrentFilter("all")}>All</button>
         <button onClick={() => setCurrentFilter("active")}>Active</button>
-        <button onClick={() => setCurrentFilter("completed")}>Completed</button>
+        <button onClick={() => setCurrentFilter("completed")}>
+          Completed
+        </button>
       </div>
 
       <ul>
@@ -157,7 +214,9 @@ export default function App() {
                   className="edit-input"
                   value={editText}
                   onChange={(e) => setEditText(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && saveEdit(todo._id)}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && saveEdit(todo._id)
+                  }
                 />
                 <button onClick={() => saveEdit(todo._id)}>💾</button>
               </>
@@ -196,7 +255,6 @@ export default function App() {
         ))}
       </ul>
 
-      {/* ✅ Logout BELOW todos */}
       <div className="logout-container">
         <button className="logout-btn" onClick={logout}>
           Logout
