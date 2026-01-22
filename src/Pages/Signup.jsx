@@ -1,12 +1,11 @@
 import { useState } from "react";
 import "./auth.css";
 
-export default function Signup({ setShowSignup }) {
+export default function Signup({ setShowSignup, setToken }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // ✅ Use env variable
   const API_BASE = import.meta.env.VITE_API_URL;
 
   async function handleSignup(e) {
@@ -27,9 +26,7 @@ export default function Signup({ setShowSignup }) {
 
       const res = await fetch(`${API_BASE}/auth/signup`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
@@ -40,15 +37,15 @@ export default function Signup({ setShowSignup }) {
         return;
       }
 
-      // ✅ SUCCESS
-      alert("Signup successful 🎉 Please login");
+      // ✅ Auto-login after signup
+      localStorage.setItem("token", data.token);
+      setToken(data.token);
+
+      alert("Signup successful 🎉 You are now logged in!");
 
       // clear form
       setEmail("");
       setPassword("");
-
-      // switch to login
-      setShowSignup(false);
     } catch (err) {
       console.error(err);
       alert("Server error. Try again later.");
@@ -61,7 +58,6 @@ export default function Signup({ setShowSignup }) {
     <div className="auth-container">
       <form className="auth-card" onSubmit={handleSignup}>
         <h2>Sign Up</h2>
-
         <input
           type="email"
           placeholder="Email"
@@ -69,7 +65,6 @@ export default function Signup({ setShowSignup }) {
           onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
         />
-
         <input
           type="password"
           placeholder="Password"
@@ -77,11 +72,9 @@ export default function Signup({ setShowSignup }) {
           onChange={(e) => setPassword(e.target.value)}
           autoComplete="new-password"
         />
-
         <button type="submit" disabled={loading}>
           {loading ? "Creating account..." : "Sign Up"}
         </button>
-
         <p>
           Already have an account?{" "}
           <span
